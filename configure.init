@@ -160,13 +160,18 @@ dnl     If found tgetent, continue. Otherwise quit.
 dnl Part 1: Detecting ncurses/curses
 dnl If the user want ncurses, Try to find it and add it to the linking library.
 if test "$use_ncurses_library" = "yes"; then
-        AC_CHECK_LIB(ncurses, initscr,
-            [AC_DEFINE(HAVE_NCURSES, 1, ncurses library)],
-            AC_MSG_ERROR([cgdb needs ncurses/curses to build. ncurses is strongly recommended.
-    If your system does not have ncurses get it!
-    If that is not an option try 'configure --with-curses.'
-    You can try --with-ncurses=/foo/ncurses to tell configure where ncurses is.]))
-	curses_lib_name="ncurses"
+        AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(HAVE_NCURSES, 1, ncurses library)])
+        AC_CHECK_LIB(ncursesw, initscr, [AC_DEFINE(HAVE_NCURSES, 1, ncursesw library)])
+        if test "$ac_cv_lib_ncursesw_initscr" = "yes"; then
+                curses_lib_name="ncursesw"
+        elif test "$ac_cv_lib_ncurses_initscr" = "yes"; then
+                curses_lib_name="ncurses"
+        else
+                AC_MSG_ERROR([cgdb needs ncurses/curses to build. ncurses is strongly recommended.
+                If your system does not have ncurses get it!
+                If that is not an option try 'configure --with-curses.'
+                You can try --with-ncurses=/foo/ncurses to tell configure where ncurses is.])
+        fi
 fi
 
 dnl If the user want curses, Warn them that cgdb does not run perfect against it.
